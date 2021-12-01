@@ -1,21 +1,22 @@
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 struct Window {
-    starting_index: usize,
     pub numbers: [Option<i32>; 3],
 }
 
 impl Window {
-    pub fn new(starting_index: usize) -> Self {
-        Self {
-            starting_index,
-            numbers: [None, None, None],
-        }
-    }
-
     pub fn add(&mut self, number: i32) {
+        // ech, cant be bothered rn
+        //let nums = self
+        //    .numbers
+        //    .iter()
+        //    .filter(|number| number.is_none())
+        //    .take(1)
+        //    .map(|num| Some(number).as_ref())
+        //    .collect();
+
         if self.numbers[0].is_none() {
             self.numbers[0] = Some(number);
             println!("Added to {:?}", self);
@@ -36,11 +37,15 @@ impl Window {
     }
 
     pub fn is_ready(&self) -> bool {
-        self.numbers[0].is_some() && self.numbers[1].is_some() && self.numbers[2].is_some()
+        self.numbers.iter().all(|number| number.is_some())
     }
 
     pub fn sum(&self) -> i32 {
-        self.numbers[0].unwrap() + self.numbers[1].unwrap() + self.numbers[2].unwrap()
+        self.numbers
+            .iter()
+            .map(|number| number.unwrap())
+            .reduce(|sum, number| sum + number)
+            .unwrap()
     }
 }
 
@@ -50,10 +55,10 @@ fn main() {
     let reader = BufReader::new(file);
 
     let mut windows: Vec<Window> = vec![];
-    for (index, line) in reader.lines().enumerate() {
+    for line in reader.lines() {
         let curr: i32 = line.unwrap().parse::<i32>().unwrap();
         println!("{}", curr);
-        windows.push(Window::new(index));
+        windows.push(Window::default());
         for window in &mut windows {
             window.add(curr);
         }
